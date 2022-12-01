@@ -1,0 +1,41 @@
+# AdventOfCode2022
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+## Input Data
+
+```elixir
+input = Kino.Input.textarea("input data")
+```
+
+## Calories
+
+```elixir
+calories =
+  input
+  |> Kino.Input.read()
+  |> String.split("\n\n", trim: true)
+  |> Enum.map(fn x ->
+    x
+    |> String.split("\n", trim: true)
+    |> Enum.map(&String.to_integer/1)
+    |> Enum.sum()
+  end)
+  |> Enum.sort(&(&1 >= &2))
+```
+
+## Part 1
+
+```elixir
+calories |> Enum.take(1) |> Enum.sum()
+```
+
+## Part 2
+
+```elixir
+calories |> Enum.take(3) |> Enum.sum()
+```
