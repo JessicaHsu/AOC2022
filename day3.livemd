@@ -1,0 +1,197 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# 2022 day3
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("puzzle_input")
+```
+
+```elixir
+downcase_upcase = %{
+  "a" => 1,
+  "b" => 2,
+  "c" => 3,
+  "d" => 4,
+  "e" => 5,
+  "f" => 6,
+  "g" => 7,
+  "h" => 8,
+  "i" => 9,
+  "j" => 10,
+  "k" => 11,
+  "l" => 12,
+  "m" => 13,
+  "n" => 14,
+  "o" => 15,
+  "p" => 16,
+  "q" => 17,
+  "r" => 18,
+  "s" => 19,
+  "t" => 20,
+  "u" => 21,
+  "v" => 22,
+  "w" => 23,
+  "x" => 24,
+  "y" => 25,
+  "z" => 26,
+  "A" => 27,
+  "B" => 28,
+  "C" => 29,
+  "D" => 30,
+  "E" => 31,
+  "F" => 32,
+  "G" => 33,
+  "H" => 34,
+  "I" => 35,
+  "J" => 36,
+  "K" => 37,
+  "L" => 38,
+  "M" => 39,
+  "N" => 40,
+  "O" => 41,
+  "P" => 42,
+  "Q" => 43,
+  "R" => 44,
+  "S" => 45,
+  "T" => 46,
+  "U" => 47,
+  "V" => 48,
+  "W" => 49,
+  "X" => 50,
+  "Y" => 51,
+  "Z" => 52
+}
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+%{
+  "W" => 49,
+  "X" => 50,
+  "k" => 11,
+  "w" => 23,
+  "G" => 33,
+  "D" => 30,
+  "Q" => 43,
+  "K" => 37,
+  "F" => 32,
+  "C" => 29,
+  "i" => 9,
+  "v" => 22,
+  "q" => 17,
+  "g" => 7,
+  "e" => 5,
+  "c" => 3,
+  "T" => 46,
+  "Y" => 51,
+  "V" => 48,
+  "l" => 12,
+  "J" => 36,
+  "U" => 47,
+  "B" => 28,
+  "z" => 26,
+  "a" => 1,
+  "p" => 16,
+  "f" => 6,
+  "h" => 8,
+  "r" => 18,
+  "L" => 38,
+  "S" => 45,
+  "O" => 41,
+  "R" => 44,
+  "j" => 10,
+  "o" => 15,
+  "H" => 34,
+  "E" => 31,
+  "u" => 21,
+  "s" => 19,
+  "n" => 14,
+  "b" => 2,
+  "Z" => 52,
+  "N" => 40,
+  "A" => 27,
+  "y" => 25,
+  "M" => 39,
+  "t" => 20,
+  "m" => 13,
+  "I" => 35,
+  "P" => 42,
+  ...
+}
+```
+
+## Part 1
+
+```elixir
+source =
+  Kino.Input.read(input)
+  |> String.split("\n")
+  |> Enum.map(fn x ->
+    {h, t} = x |> String.split_at(x |> String.length() |> div(2))
+
+    prioritize_item =
+      List.myers_difference(
+        h |> String.graphemes() |> Enum.sort(),
+        t |> String.graphemes() |> Enum.sort()
+      )[:eq]
+      |> List.first()
+
+    downcase_upcase[prioritize_item]
+  end)
+  |> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+8401
+```
+
+## Part 2
+
+```elixir
+source =
+  Kino.Input.read(input)
+  |> String.split("\n")
+  |> Enum.chunk_every(3)
+  |> Enum.map(fn x ->
+    [item1, item2, item3] = x
+
+    [
+      item1 |> String.graphemes() |> Enum.sort() |> Enum.uniq(),
+      item2 |> String.graphemes() |> Enum.sort() |> Enum.uniq(),
+      item3 |> String.graphemes() |> Enum.sort() |> Enum.uniq()
+    ]
+    |> List.flatten()
+    |> Enum.frequencies()
+    |> Enum.reduce(0, fn {k, v}, acc ->
+      if v == 3 do
+        acc + downcase_upcase[k]
+      else
+        acc
+      end
+    end)
+  end)
+  |> Enum.sum()
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2641
+```

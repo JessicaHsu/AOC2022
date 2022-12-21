@@ -1,0 +1,99 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# 2022 day 2
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("game")
+```
+
+```elixir
+defmodule Game do
+  def part1(elf, me) do
+    strategy1(elf, me, 0)
+  end
+
+  def part2(elf2, me) do
+    strategy2(elf2, me, 0)
+  end
+
+  defp strategy1([], [], points), do: points
+
+  defp strategy1(elf, me, points) do
+    [eh | et] = elf
+    [mh | mt] = me
+
+    strategy1(et, mt, rule(eh, mh) + points)
+  end
+
+  defp strategy2([], [], points), do: points
+
+  defp strategy2(elf, me, points) do
+    [eh | et] = elf
+    [mh | mt] = me
+
+    points = points + strategy2_rules()[eh |> String.to_atom()][mh |> String.to_atom()]
+    strategy2(et, mt, points)
+  end
+
+  # X means you need to lose, 
+  # Y means you need to end the round in a draw, 
+  # Z means you need to win.
+  defp strategy2_rules() do
+    %{
+      :A => %{:Z => rule("A", "Y"), :X => rule("A", "Z"), :Y => rule("A", "X")},
+      :B => %{:Z => rule("B", "Z"), :X => rule("B", "X"), :Y => rule("B", "Y")},
+      :C => %{:Z => rule("C", "X"), :X => rule("C", "Y"), :Y => rule("C", "Z")}
+    }
+  end
+
+  # rock  
+  defp rule("A", "Z"), do: 0 + 3
+  defp rule("A", "X"), do: 3 + 1
+  defp rule("A", "Y"), do: 6 + 2
+  # paper  
+  defp rule("B", "X"), do: 0 + 1
+  defp rule("B", "Y"), do: 3 + 2
+  defp rule("B", "Z"), do: 6 + 3
+  # scissor  
+  defp rule("C", "Y"), do: 0 + 2
+  defp rule("C", "Z"), do: 3 + 3
+  defp rule("C", "X"), do: 6 + 1
+end
+
+source =
+  Kino.Input.read(input)
+  |> String.split([" ", "\n"], trim: true)
+
+me = source |> Enum.drop_every(2)
+elf = ["" | source] |> Enum.drop_every(2)
+
+Game.part1(elf, me) |> IO.inspect(label: "part1")
+Game.part2(elf, me) |> IO.inspect(label: "part2")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+part1: 13526
+part2: 14204
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+14204
+```

@@ -1,0 +1,139 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# 2022 day5
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.8.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("rearrangement procedure:")
+```
+
+## Part 1 & Part 2
+
+```elixir
+defmodule Crane do
+  def analyze_commend([], current_stack, _enable_move_mutiple_at_once),
+    do: result_generator(current_stack, current_stack |> Map.keys(), [])
+
+  def analyze_commend(data, current_stack, enable_move_mutiple_at_once) do
+    [h | t] = data
+    [commend_total, commend_from, commend_to] = h
+    total = get_cargo_nums_to_move(commend_total)
+    from = get_cargo_from(commend_from)
+    to = get_cargo_to(commend_to)
+
+    detach_result = detach(current_stack[from], total, [])
+
+    current_stack =
+      case enable_move_mutiple_at_once do
+        true ->
+          current_stack
+          |> Map.update!(to, fn x -> (detach_result[:detach] |> Enum.reverse()) ++ x end)
+          |> Map.update!(from, fn _x -> detach_result[:remain] end)
+
+        false ->
+          current_stack
+          |> Map.update!(to, fn x -> detach_result[:detach] ++ x end)
+          |> Map.update!(from, fn _x -> detach_result[:remain] end)
+      end
+
+    analyze_commend(t, current_stack, enable_move_mutiple_at_once)
+  end
+
+  defp get_cargo_nums_to_move("move " <> cargo) do
+    cargo |> String.to_integer()
+  end
+
+  defp get_cargo_from("from " <> cargo_line_from) do
+    cargo_line_from |> String.to_integer()
+  end
+
+  defp get_cargo_to("to " <> cargo_line_to) do
+    cargo_line_to |> String.to_integer()
+  end
+
+  defp detach(nil, total, detached_cargos) when total == 0,
+    do: %{:detach => detached_cargos, :remain => []}
+
+  defp detach(origin, total, detached_cargos) when total == 0,
+    do: %{:detach => detached_cargos, :remain => origin}
+
+  defp detach([h | t], total, detached_cargos) when total > 0 do
+    detach(t, total - 1, [h | detached_cargos])
+  end
+
+  defp result_generator(_final_stack, [], result) do
+    result |> Enum.reverse() |> List.to_string()
+  end
+
+  defp result_generator(final_stack, [h | t], result) do
+    if final_stack[h] == nil do
+      result_generator(final_stack, t, result)
+    else
+      result_generator(final_stack, t, [final_stack[h] |> List.first() | result])
+    end
+  end
+end
+
+source =
+  Kino.Input.read(input)
+  |> String.split("\n", trim: true)
+  |> Enum.map(fn x ->
+    x
+    |> String.replace("from", "| from")
+    |> String.replace("to", "| to")
+    |> String.split("|", trim: true)
+    |> Enum.map(&String.trim_leading(&1))
+    |> Enum.map(&String.trim_trailing(&1))
+  end)
+
+cargo_stack = %{
+  1 => ["T", "V", "J", "W", "N", "R", "M", "S"],
+  2 => ["V", "C", "P", "Q", "J", "D", "W", "B"],
+  3 => ["P", "R", "D", "H", "F", "J", "B"],
+  4 => ["D", "N", "M", "B", "P", "R", "F"],
+  5 => ["B", "T", "P", "R", "V", "H"],
+  6 => ["T", "P", "B", "C"],
+  7 => ["L", "P", "R", "J", "B"],
+  8 => ["W", "B", "Z", "T", "L", "S", "C", "N"],
+  9 => ["G", "S", "L"]
+}
+
+# [T] [V]                     [W]    
+# [V] [C] [P] [D]             [B]    
+# [J] [P] [R] [N] [B]         [Z]    
+# [W] [Q] [D] [M] [T]     [L] [T]    
+# [N] [J] [H] [B] [P] [T] [P] [L]    
+# [R] [D] [F] [P] [R] [P] [R] [S] [G]
+# [M] [W] [J] [R] [V] [B] [J] [C] [S]
+# [S] [B] [B] [F] [H] [C] [B] [N] [L]
+#  1   2   3   4   5   6   7   8   9 
+
+Crane.analyze_commend(source, cargo_stack, false) |> IO.inspect(label: "part1")
+Crane.analyze_commend(source, cargo_stack, true) |> IO.inspect(label: "part2")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+part1: "LJSVLTWQM"
+part2: "BRQWDBBJM"
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+"BRQWDBBJM"
+```

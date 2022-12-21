@@ -1,0 +1,153 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# day4
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.7.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("data")
+```
+
+## Part 1
+
+```elixir
+source =
+  Kino.Input.read(input)
+  |> String.split(["\n", "\r\n"], trim: true)
+  |> Enum.map(&String.split(&1, ",", trim: true))
+  |> Enum.map(fn [space1, space2] ->
+    space1_shorthand =
+      space1
+      |> String.split("-")
+      |> Enum.map(&String.to_integer(&1))
+
+    space1_h = space1_shorthand |> Enum.at(0)
+    space1_t = space1_shorthand |> Enum.at(1)
+
+    space2_shorthand =
+      space2
+      |> String.split("-")
+      |> Enum.map(&String.to_integer(&1))
+
+    space2_h = space2_shorthand |> Enum.at(0)
+    space2_t = space2_shorthand |> Enum.at(1)
+
+    space1_length = Enum.concat([space1_h..space1_t]) |> length()
+    space2_length = Enum.concat([space2_h..space2_t]) |> length()
+
+    larger_lenth =
+      if space1_length > space2_length do
+        space1_length
+      else
+        space2_length
+      end
+
+    concat_lenth =
+      Enum.concat(space1_h..space1_t, space2_h..space2_t)
+      |> Enum.uniq()
+      |> length()
+
+    if concat_lenth < space1_length + space2_length and concat_lenth == larger_lenth do
+      false
+    else
+      true
+    end
+  end)
+  |> Enum.count(&(&1 == false))
+
+# 2-4
+# split "-" make it become 2, 1
+
+# [x, y ] = "2-4" |> String.split("-" ) |> Enum.map(&(String.to_integer(&1)))
+# Enum.concat(x..y, 2..10) |> Enum.sort |> Enum.uniq()
+
+# #lenth must large than the lager one
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+490
+```
+
+## Part 2
+
+```elixir
+source =
+  Kino.Input.read(input)
+  |> String.split(["\n", "\r\n"], trim: true)
+  |> Enum.map(&String.split(&1, ",", trim: true))
+  |> Enum.map(fn [space1, space2] ->
+    space1_shorthand =
+      space1
+      |> String.split("-")
+      |> Enum.map(&String.to_integer(&1))
+
+    space1_h = space1_shorthand |> Enum.at(0)
+    space1_t = space1_shorthand |> Enum.at(1)
+
+    space2_shorthand =
+      space2
+      |> String.split("-")
+      |> Enum.map(&String.to_integer(&1))
+
+    space2_h = space2_shorthand |> Enum.at(0)
+    space2_t = space2_shorthand |> Enum.at(1)
+
+    space1_length = Enum.concat([space1_h..space1_t]) |> length()
+    space2_length = Enum.concat([space2_h..space2_t]) |> length()
+
+    larger_lenth =
+      if space1_length > space2_length do
+        space1_length
+      else
+        space2_length
+      end
+
+    concat_lenth =
+      Enum.concat(space1_h..space1_t, space2_h..space2_t)
+      |> Enum.uniq()
+      |> length()
+
+    if concat_lenth < space1_length + space2_length do
+      false
+    else
+      true
+    end
+  end)
+  |> Enum.count(&(&1 == false))
+
+# 2-4
+# split "-" make it become 2, 1
+
+# [x, y ] = "2-4" |> String.split("-" ) |> Enum.map(&(String.to_integer(&1)))
+# Enum.concat(x..y, 2..10) |> Enum.sort |> Enum.uniq()
+
+# #lenth must large than the lager one
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+warning: variable "larger_lenth" is unused (if the variable is not meant to be used, prefix it with an underscore)
+  #cell:dxqic56xv74wxbz5smaz44ismxzyj7a5:27
+
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+921
+```

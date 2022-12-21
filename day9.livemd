@@ -1,0 +1,102 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# 2022 day9
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.8.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Section
+
+```elixir
+part1_input = Kino.Input.textarea("rope data")
+```
+
+```elixir
+par1_input_test_data = Kino.Input.textarea("rope data")
+```
+
+```elixir
+defmodule RopeBridge do
+  def head_records(rope_data) do
+    rope_data
+    |> Enum.reduce([[0, 0]], fn [direction, steps], acc ->
+      head_generator(direction, steps, acc)
+    end)
+  end
+
+  defp head_generator(_direction, 0, coordinates), do: coordinates
+
+  defp head_generator(direction, steps, coordinates) do
+    [x, y] = coordinates |> List.first()
+
+    cond do
+      "U" == direction ->
+        head_generator(direction, steps - 1, [[x, y + 1] | coordinates])
+
+      "D" == direction ->
+        head_generator(direction, steps - 1, [[x, y - 1] | coordinates])
+
+      "L" == direction ->
+        head_generator(direction, steps - 1, [[x - 1, y] | coordinates])
+
+      "R" == direction ->
+        head_generator(direction, steps - 1, [[x + 1, y] | coordinates])
+    end
+  end
+
+  def tail_generator(_origin, [], tails) do
+    tails
+    |> Enum.uniq()
+    |> Enum.sort()
+    |> Enum.count()
+  end
+
+  def tail_generator(origin_heads, [_h | t], tails) when tails == [],
+    do: tail_generator(origin_heads, t, [[0, 0] | tails])
+
+  def tail_generator(origin_heads, heads, tails) do
+    [h | t] = heads
+    [hx, hy] = h
+
+    [tx, ty] = tails |> List.first()
+
+    if (hx - tx) not in [0, -1, 1] or (hy - ty) not in [0, -1, 1] do
+      tail_generator(origin_heads |> Enum.drop(1), t, [origin_heads |> List.first() | tails])
+    else
+      tail_generator(origin_heads |> Enum.drop(1), t, [tails |> List.first() | tails])
+    end
+  end
+end
+
+source =
+  Kino.Input.read(part1_input)
+  |> String.split("\n", trim: true)
+  |> Enum.map(fn data ->
+    [x, y] = data |> String.split(" ")
+    [x, y |> String.to_integer()]
+  end)
+
+heads =
+  RopeBridge.head_records(source)
+  |> Enum.reverse()
+  |> Enum.drop(1)
+
+RopeBridge.tail_generator(heads, heads, [])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+6266
+```
+
+## Part2
