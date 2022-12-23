@@ -1,0 +1,93 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# AOC2022day10
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.8.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Resolving Hex dependencies...
+Dependency resolution completed:
+New:
+  kino 0.8.0
+  table 0.1.2
+* Getting kino (Hex package)
+* Getting table (Hex package)
+==> table
+Compiling 5 files (.ex)
+Generated table app
+==> kino
+Compiling 37 files (.ex)
+Generated kino app
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Section
+
+```elixir
+input = Kino.Input.textarea("data")
+```
+
+```elixir
+source =
+  Kino.Input.read(input)
+  |> String.replace("addx", "2")
+  |> String.replace("noop", "1 0")
+  |> String.split("\n", trim: true)
+  |> Enum.map(fn signal ->
+    [x, y] = signal |> String.split(" ")
+
+    [x |> String.to_integer(), y |> String.to_integer()]
+  end)
+  |> Enum.reduce(
+    %{:cycles => 0, :strength => 1, :checkpoint => 20, :result => %{}},
+    fn [required_cycles, value], acc ->
+      cond do
+        acc.cycles + required_cycles >= acc.checkpoint ->
+          ret =
+            acc.result
+            |> Map.put(acc.checkpoint, acc.strength)
+
+          acc
+          |> Map.update!(:checkpoint, &(&1 + 40))
+          |> Map.put(:result, ret)
+          |> Map.update!(:cycles, &(&1 + required_cycles))
+          |> Map.update!(:strength, &(&1 + value))
+
+        true ->
+          acc
+          |> Map.update!(:cycles, &(&1 + required_cycles))
+          |> Map.update!(:strength, &(&1 + value))
+      end
+    end
+  )
+
+source[:result]
+|> Map.to_list()
+|> Enum.reduce(0, fn {x, y}, acc ->
+  acc + x * y
+end)
+|> IO.inspect(label: "part1")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+part1: 17180
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+17180
+```
