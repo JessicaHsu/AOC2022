@@ -1,0 +1,85 @@
+<!-- livebook:{"persist_outputs":true} -->
+
+# 2022day6
+
+```elixir
+Mix.install([
+  {:kino, "~> 0.8.0"}
+])
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+Resolving Hex dependencies...
+Dependency resolution completed:
+New:
+  kino 0.8.0
+  table 0.1.2
+* Getting kino (Hex package)
+* Getting table (Hex package)
+==> table
+Compiling 5 files (.ex)
+Generated table app
+==> kino
+Compiling 37 files (.ex)
+Generated kino app
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+:ok
+```
+
+## Part1 and Part2
+
+```elixir
+input = Kino.Input.textarea("datastream buffer:")
+```
+
+```elixir
+defmodule DataStreamProcessor do
+  def start(data, num) do
+    processor(data |> String.graphemes(), num, [], 0, false)
+  end
+
+  defp processor(_data, _num, _first_start_of_packet, counter, true) do
+    counter
+  end
+
+  defp processor([h | t], num, first_start_of_packet, counter, false)
+       when length(first_start_of_packet) < num do
+    processor(t, num, first_start_of_packet ++ [h], counter + 1, false)
+  end
+
+  defp processor([h | t], num, first_start_of_packet, counter, false) do
+    case first_start_of_packet |> List.to_string() ==
+           first_start_of_packet |> Enum.uniq() |> List.to_string() do
+      true ->
+        processor(t, num, first_start_of_packet, counter, true)
+
+      false ->
+        first_start_of_packet = first_start_of_packet |> Enum.drop(1)
+        processor(t, num, first_start_of_packet ++ [h], counter + 1, false)
+    end
+  end
+end
+
+source = Kino.Input.read(input)
+DataStreamProcessor.start(source, 4) |> IO.inspect(label: "detecting packets")
+DataStreamProcessor.start(source, 14) |> IO.inspect(label: "message")
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+detecting packets: 1892
+message: 2313
+```
+
+<!-- livebook:{"output":true} -->
+
+```
+2313
+```
